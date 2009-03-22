@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="schema" targetNamespace="urn:schema" xmlns:typens="urn:schema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+	<message name="scalarMethod">
+		<part name="firstname" type="xsd:string"/>
+		<part name="lastname" type="xsd:string"/>
+	</message>
+	<message name="scalarMethodResponse">
+		<part name="return" type="xsd:string"/>
+	</message>
+	<portType name="schemaPortType">
+		<operation name="scalarMethod">
+			<documentation>
+				Return a string
+			</documentation>
+			<input message="typens:scalarMethod"/>
+			<output message="typens:scalarMethodResponse"/>
+		</operation>
+	</portType>
+	<binding name="schemaBinding" type="typens:schemaPortType">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="scalarMethod">
+			<soap:operation soapAction="urn:schemaAction"/>
+			<input>
+				<soap:body namespace="urn:schema" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</input>
+			<output>
+				<soap:body namespace="urn:schema" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="schemaService">
+		<port name="schemaPort" binding="typens:schemaBinding">
+			<soap:address location="http://dklab.ru/lib/Dklab_SoapClient/demo/t/Dklab_SoapClient/fixture/server.php"/>
+		</port>
+	</service>
+</definitions>

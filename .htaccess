@@ -1,0 +1,2 @@
+Options +Indexes
+AddHandler application/x-httpd-php-source php phpt
