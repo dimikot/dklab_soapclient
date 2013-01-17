@@ -35,7 +35,7 @@
  * caused on Windows. Don't know yet how to work-around it... This bug
  * is not clearly reproducible.
  *
- * @version 0.92
+ * @version 0.93
  */
 class Dklab_SoapClient extends SoapClient
 {
@@ -315,6 +315,10 @@ class Dklab_SoapClient_Request
         // HTTP_HOST substitution support.
         if (isset($clientOptions['host'])) {
             $curlOptions[CURLOPT_HTTPHEADER][] = "Host: {$clientOptions['host']}";
+        }
+        // HTTP basic auth.
+        if (isset($clientOptions['login']) && isset($clientOptions['password']) ) {
+            $curlOptions[CURLOPT_USERPWD] = $clientOptions['login'] . ":" . $clientOptions['password'];
         }
         // Cookies.       
         if ($request['cookies']) {
