@@ -301,6 +301,10 @@ class Dklab_SoapClient_Request
         $curlOptions[CURLOPT_HTTPHEADER] = array();
         // SOAP protocol encoding is always UTF8 according to RFC.
         $curlOptions[CURLOPT_HTTPHEADER][] = "Content-Type: application/soap+xml; charset=utf-8";
+        // adding SoapAction Header
+	if (isset($request['action'])) {
+	    $curlOptions[CURLOPT_HTTPHEADER][] = 'SOAPAction: "' . $request['action'] . '"';
+	}
         // Timeout handling.
         if (isset($clientOptions['timeout'])) {
             $curlOptions[CURLOPT_TIMEOUT] = $clientOptions['timeout'];
