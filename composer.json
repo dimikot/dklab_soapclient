@@ -10,7 +10,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Dklab": "lib/Dklab"
+            "Dklab": "lib/"
         }
     }
 }
