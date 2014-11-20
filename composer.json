@@ -1,7 +1,7 @@
 {
     "name": "tashik/dklab_soapclient",
     "type": "library",
-    "description": "Web project engine base on Phalcon framework and engine created by temafey",
+    "description": "Soap Client by Dmitriy Koterov",
     "keywords": ["soap", "php","timeout"],
     "homepage": "https://github.com/tashik/dklab_soapclient",
     "license": "MIT",
@@ -10,7 +10,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Dklab": "/"
+            "Dklab": "lib/Dklab"
         }
     }
 }
