@@ -1,4 +1,3 @@
-<?php
 /**
  * Enhanced SOAP client with support of parallel requests and reconnects:
  *
@@ -64,7 +63,7 @@ class SoapClient extends \SoapClient
      * 
      * @see SoapClient::__doRequest
      */
-    public function __doRequest($request, $location, $action, $version, $one_way = 0)
+    public function __doRequest($request, $location, $action, $version, $one_way = 0): ?string
     {
         if ($this->_hasForcedResponse) {
             // We forced a response, so return it.
@@ -87,7 +86,7 @@ class SoapClient extends \SoapClient
      * 
      * @see SoapClient::__call
      */
-    public function __call($functionName, $arguments)
+    public function __call($functionName, $arguments): mixed
     {
         return $this->__soapCall($functionName, $arguments);
     }
@@ -102,7 +101,7 @@ class SoapClient extends \SoapClient
      * 
      * @see SoapClient::__soapCall
      */
-    public function __soapCall($functionName, $arguments, $options = array(), $inputHeaders = null, &$outputHeaders = null)
+    public function __soapCall($functionName, $arguments, $options = array(), $inputHeaders = null, &$outputHeaders = null): mixed
     {
         $isAsync = false;
         if (!empty($options['async'])) {
@@ -135,7 +134,7 @@ class SoapClient extends \SoapClient
      * @param string $value
      * @return void
      */
-    public function __setCookie($name, $value = null)
+    public function __setCookie($name, $value = null): void
     {
         parent::__setCookie($name, $value);
         if ($value !== null) {
