@@ -1,5 +1,7 @@
 <?php
+
 namespace Dklab\SoapClient;
+
 /**
  * cURL multi-request manager.
  *
@@ -17,7 +19,7 @@ namespace Dklab\SoapClient;
  */
 class Curl
 {
-	/**
+    /**
      * Emergency number of connect tries.
      * Used if a response validator function is broken.
      */
@@ -72,7 +74,8 @@ class Curl
         // Create a cURL handler.
         $curlHandler = $this->_createCurlHandler($curlOptions);
 
-        $key = (string)$curlHandler;
+        //$key = (string)$curlHandler;
+        $key = bin2hex(random_bytes(10));
         // Add it to the queue. Note that we NEVER USE curl_copy_handle(),
         // because it seems to be buggy and corrupts the memory.
         $request = $this->_requests[$key] = (object)array(
@@ -103,8 +106,8 @@ class Curl
             return $response;
         }
         do {
-			// Execute all the handles.
-			$nRunning = $this->_execCurl(true);
+            // Execute all the handles.
+            $nRunning = $this->_execCurl(true);
             // Try to extract the response.
             if (null !== ($response = $this->_extractResponse($key))) {
                 //echo sprintf("-- %d %d %d\n", count($this->_responses), count($this->_requests));
@@ -152,13 +155,25 @@ class Curl
     private function _storeResponses(&$nRunning = null)
     {
         while ($done = curl_multi_info_read($this->_handler)) {
+            $key = null;
             // Get a key and request for this handle.
-            $key = (string)$done['handle'];
-            $request = $this->_requests[$key];
+            foreach ($this->_requests as $k => $data) {
+                if ($data->handle == $done['handle']) {
+                    $key = $k;
+                    $request = $data;
+                }
+            }
+
+            if (!$key) {
+                continue;
+            }
+
+            //$key = (string)$done['handle'];
+            //$request = $this->_requests[$key];
             // Build the full response array and remove the handle from queue.
             $response = curl_getinfo($request->handle);
             $response['result'] = $done['result'];
-            $response['result_timeout'] = $response["result"] === CURLE_OPERATION_TIMEOUTED? ($response["request_size"] <= 0? 'connect' : 'data') : null;
+            $response['result_timeout'] = $response["result"] === CURLE_OPERATION_TIMEOUTED ? ($response["request_size"] <= 0 ? 'connect' : 'data') : null;
             @list($response['headers'], $response['body']) = preg_split('/\r?\n\r?\n/s', curl_multi_getcontent($request->handle), 2);
             curl_multi_remove_handle($this->_handler, $request->handle);
             // Process validation and possibly retry procedure.
@@ -211,7 +226,7 @@ class Curl
     private function _createCurlHandler($curlOptions)
     {
         // Disable "100 Continue" header sending. This avoids problems with large POST.
-    	$curlOptions[CURLOPT_HTTPHEADER][] = 'Expect:';
+        $curlOptions[CURLOPT_HTTPHEADER][] = 'Expect:';
         // ALWAYS fetch with headers!
         $curlOptions[CURLOPT_HEADER] = 1;
         // The following two options are very important for timeouted reconnects!
@@ -221,7 +236,7 @@ class Curl
         $curlOptions[CURLOPT_FOLLOWLOCATION] = false;
         // More debugging.
         $curlOptions[CURLINFO_HEADER_OUT] = true;
-    	// Init and return the handle.
+        // Init and return the handle.
         $curlHandler = curl_init();
         curl_setopt_array($curlHandler, $curlOptions);
         return $curlHandler;
@@ -236,12 +251,12 @@ class Curl
      */
     private function _addCurlRequest(\stdClass $request, $key)
     {
-    	// Add a handle to the queue.
-    	$min = min(
-    		isset($request->options[CURLOPT_TIMEOUT])? $request->options[CURLOPT_TIMEOUT] : 100000,
-    		isset($request->options[CURLOPT_CONNECTTIMEOUT])? $request->options[CURLOPT_CONNECTTIMEOUT] : 100000
-    	);
-    	$request->timeout_at = microtime(true) + $min;
+        // Add a handle to the queue.
+        $min = min(
+            isset($request->options[CURLOPT_TIMEOUT]) ? $request->options[CURLOPT_TIMEOUT] : 100000,
+            isset($request->options[CURLOPT_CONNECTTIMEOUT]) ? $request->options[CURLOPT_CONNECTTIMEOUT] : 100000
+        );
+        $request->timeout_at = microtime(true) + $min;
         curl_multi_add_handle($this->_handler, $request->handle);
         // Run initial processing loop without select(), because there are no
         // sockets connected yet.
@@ -256,16 +271,16 @@ class Curl
      */
     private function _getCurlNextTimeoutDelay()
     {
-    	$time = microtime(true);
-    	$min = 100000;
-    	foreach ($this->_requests as $request) {
-    		// May be negative value here in case when a request is timed out,
-    		// it's a quite common case.
-    		$min = min($min, $request->timeout_at - $time);
-    	}
-    	// Minimum delay is 1 ms to be protected from busy wait.
-    	$min = max($min, 0.001);
-    	return $min;
+        $time = microtime(true);
+        $min = 100000;
+        foreach ($this->_requests as $request) {
+            // May be negative value here in case when a request is timed out,
+            // it's a quite common case.
+            $min = min($min, $request->timeout_at - $time);
+        }
+        // Minimum delay is 1 ms to be protected from busy wait.
+        $min = max($min, 0.001);
+        return $min;
     }
 
     /**
@@ -280,9 +295,9 @@ class Curl
         if ($waitForAction) {
             curl_multi_select($this->_handler, $this->_getCurlNextTimeoutDelay());
         }
-    	while (curl_multi_exec($this->_handler, $nRunningCurrent) == CURLM_CALL_MULTI_PERFORM);
+        while (curl_multi_exec($this->_handler, $nRunningCurrent) == CURLM_CALL_MULTI_PERFORM);
         // Store appeared responses if present.
-    	$this->_storeResponses($nRunningCurrent);
-    	return $nRunningCurrent;
+        $this->_storeResponses($nRunningCurrent);
+        return $nRunningCurrent;
     }
 }
