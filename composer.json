@@ -1,0 +1,16 @@
+{
+    "name": "tashik/dklab_soapclient",
+    "type": "library",
+    "description": "Soap Client by Dmitriy Koterov",
+    "keywords": ["soap", "php","timeout"],
+    "homepage": "https://github.com/tashik/dklab_soapclient",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Dklab": "lib/"
+        }
+    }
+}
