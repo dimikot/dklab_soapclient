@@ -159,8 +159,8 @@ class Request
         } catch (\Exception $e) {
         	// Add more debug parameters to SoapFault.
         	$e->location = $this->_request['location'];
-        	$e->request = $this->_callArgs;
-        	$e->response = $response;
+        	//$e->request = $this->_callArgs;
+        	//$e->response = $response;
         	throw $e;
         }
         return $this->_result;
